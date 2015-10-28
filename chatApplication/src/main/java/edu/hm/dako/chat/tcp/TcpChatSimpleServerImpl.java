@@ -1,21 +1,16 @@
 package edu.hm.dako.chat.tcp;
 
+import edu.hm.dako.chat.common.*;
+import edu.hm.dako.chat.connection.Connection;
+import edu.hm.dako.chat.connection.ServerSocket;
+import edu.hm.dako.chat.server.ChatServer;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.hm.dako.chat.common.ExceptionHandler;
-import edu.hm.dako.chat.common.ChatClientConversationStatus;
-import edu.hm.dako.chat.common.ChatClientListEntry;
-import edu.hm.dako.chat.common.ChatPDU;
-import edu.hm.dako.chat.common.SharedChatClientList;
-import edu.hm.dako.chat.connection.Connection;
-import edu.hm.dako.chat.connection.ServerSocket;
-import edu.hm.dako.chat.server.ChatServer;
 
 /**
  * <p/>
@@ -243,7 +238,7 @@ public class TcpChatSimpleServerImpl implements ChatServer {
       	  pdu.setServerThreadName(Thread.currentThread().getName());
       	  pdu.setClientThreadName(receivedPdu.getClientThreadName()); 
       	  pdu.setUserName(receivedPdu.getUserName());
-      	pdu.setClientStatus(ChatClientConversationStatus.UNREGISTERED);
+      	  pdu.setClientStatus(ChatClientConversationStatus.UNREGISTERED);
         
     	  ChatClientListEntry client = clients.getClient(receivedPdu.getUserName());
           if (client != null) {
@@ -411,32 +406,64 @@ public class TcpChatSimpleServerImpl implements ChatServer {
 		          switch(receivedPdu.getPduType()) { 
 		          
 		          case ChatPDU.LOGIN_REQUEST:
-		              // Neuer Client moechte sich einloggen, Client in Client-Liste eintragen
-		              log.debug("Login-Request-PDU fuer " + receivedPdu.getUserName() + " empfangen");
-		              login(receivedPdu, connection);  	            
-		              clients.changeClientStatus(receivedPdu.getUserName(),ChatClientConversationStatus.REGISTERED);
-		              break;
+		              // Neuer Client moechte sich einloggen
+                      // Prüfen, ob der Client noch nciht eingeloggt ist
+                      // Client in Client-Liste eintragen
+                      //if (receivedPdu.getClientStatus() == ChatClientConversationStatus.UNREGISTERED) {
+                          log.debug("Login-Request-PDU fuer " + receivedPdu.getUserName() + " empfangen");
+                          login(receivedPdu, connection);
+                          clients.changeClientStatus(receivedPdu.getUserName(), ChatClientConversationStatus.REGISTERED);
+                          break;
+                      //}
+                      //else {
+                      //    log.debug("Login-Request abgelehnt");
+                      //}
 		              
 		          case ChatPDU.LOGOUT_REQUEST:
 		        	  // Ein Client moechte sich ausloggen
+                      // New State = UNREGISTERING;
 		        	  // Logout_Event_PDU an alle aktive Clients senden
 		        	  // Logout_Response_PDU an den Client senden
-		              // Client aus der Client-Liste entfernen
-		              log.debug("Logout-Request-PDU fuer " + receivedPdu.getUserName() + " empfangen");
-		              connection.send(ChatPDU.LOGIN_EVENT);
-		              connection.send(ChatPDU.LOGIN_RESPONSE);
-		              clients.deleteClient(receivedPdu.getUserName());
-		              break;
-		              
-		          case ChatPDU.CHAT_MESSAGE_REQUEST: 
-		        	  // Ein Client moechte eine Nachricht senden, 
+                      //New State = UNREGISTERED;
+		              // Client aus der Client-Liste entfernen (delete login_list entry)
+
+                      log.debug("Logout-Request-PDU fuer " + receivedPdu.getUserName() + " empfangen");
+
+                      receivedPdu.setClientStatus(ChatClientConversationStatus.UNREGISTERING);
+
+                      // Logout-Event an alle Clients (auch an den gerade aktuell anfragenden) senden
+                      receivedPdu = createLogoutEventPdu(receivedPdu);
+                      sendLoginListUpdateEvent(receivedPdu);
+
+                      // Response-PDU senden
+                      receivedPdu = createLogoutResponsePdu(receivedPdu);
+                      receivedPdu.setClientStatus(ChatClientConversationStatus.UNREGISTERED);
+                      clients.deleteClient(receivedPdu.getUserName());
+
+                      /*if (receivedPdu.getClientStatus().toString().equals("REGISTERED") ||
+                              receivedPdu.getClientStatus().toString().equals("REGISTERING")) {
+                          log.debug("Logout-Request-PDU fuer " + receivedPdu.getUserName() + " empfangen");
+
+                          connection.send(ChatPDU.LOGIN_EVENT);
+                          connection.send(ChatPDU.LOGIN_RESPONSE);
+                          clients.deleteClient(receivedPdu.getUserName());
+                          break;
+                      }
+                      else {
+                          log.debug("Logout-Request abgelehnt");
+
+                      }
+                      */
+
+                      case ChatPDU.CHAT_MESSAGE_REQUEST:
+		        	  // Ein Client moechte eine Nachricht senden,
 		        	  // Senden einer Chat-Message_Event-PDU an alle aktiven Clients, 
-		        	  // Senden einer Response-PDU an den initiierenden Client
+		        	  // Senden einer Response-PDU an den initiierenden Client (CHAT_MESSAGE-RESPONSE PDU)
 		        	  log.debug("Chat-Message-Request-PDU fuer " + receivedPdu.getUserName() + "empfangen");
 		        	  connection.send(ChatPDU.CHAT_MESSAGE_EVENT);
 		        	  connection.send(ChatPDU.CHAT_MESSAGE_RESPONSE);
 		        	  break;
-		        	  
+
 		              
 		          default:
 		              log.debug("Falsche PDU empfangen von Client: " + receivedPdu.getUserName() + ", PduType: " + receivedPdu.getPduType());

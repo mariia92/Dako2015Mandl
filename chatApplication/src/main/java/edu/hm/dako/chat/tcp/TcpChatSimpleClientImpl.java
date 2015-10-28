@@ -1,12 +1,6 @@
 package edu.hm.dako.chat.tcp;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.hm.dako.chat.client.AbstractClient; ///
+import edu.hm.dako.chat.client.AbstractClient;
 import edu.hm.dako.chat.client.ChatClientUserInterface;
 import edu.hm.dako.chat.common.ChatClientConversationStatus;
 import edu.hm.dako.chat.common.ChatPDU;
@@ -15,6 +9,11 @@ import edu.hm.dako.chat.common.SharedClientStatistics;
 import edu.hm.dako.chat.connection.Connection;
 import edu.hm.dako.chat.connection.ConnectionFactory;
 import edu.hm.dako.chat.connection.DecoratingConnectionFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p/>
@@ -351,11 +350,16 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
     	  messageCounter.getAndIncrement();
     	  requestPdu.setSequenceNumber(messageCounter.get());    	  
     	  try {
-            connection.send(requestPdu);
-            log.debug("Chat-Message-Request-PDU fuer Client " + name + " an Server gesendet, Inhalt: " + text);
-          } catch (Exception e) { 
+              userInterface.setBlock(true);
+              connection.send(requestPdu);
+              log.debug("Chat-Message-Request-PDU fuer Client " + name + " an Server gesendet, Inhalt: " + text);
+
+          } catch (Exception e) {
+              userInterface.setBlock(false);
         	  ExceptionHandler.logException(e);
           }
+
+
       }
 
       /**
@@ -422,8 +426,17 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
                 	  }
                	  	  break;  
          
-                  case ChatPDU.LOGIN_EVENT: ///FÜR ADVANCED CHAT SELBST VERVOLLSTÄNDIGEN
-                  case ChatPDU.LOGOUT_EVENT:   ///FÜR ADVANCED CHAT SELBST VERVOLLSTÄNDIGEN  
+                  case ChatPDU.LOGIN_EVENT:
+                      //////SharedChatClientList.getInstance().getClientNameList();
+                      try {
+                          handleUserListEvent(receivedPdu); ///Update der Liste von angemeldeten User
+                      } catch (Exception e) {
+                          ExceptionHandler.logException(e);
+                      }
+                      break;
+
+                  case ChatPDU.LOGOUT_EVENT:
+
                  	  // Meldung vom Server, dass sich die Liste der angemeldeten User veraendert hat
                   	  try {
                   		handleUserListEvent(receivedPdu); ///Update der Liste von angemeldeten User
@@ -451,8 +464,17 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
                         }   
                     	break;
 
+                    case ChatPDU.CHAT_MESSAGE_RESPONSE:
+                        // Unblock Chat -> WIE?
+
+                    case ChatPDU.CHAT_MESSAGE_EVENT:
+                        // Show new message
+
+
+
+
                     default:
-                	      log.debug("Ankommende PDU im Zustand " + getStatus() + " wird verworfen");
+                	  log.debug("Ankommende PDU im Zustand " + getStatus() + " wird verworfen");
                        }
                   break;             
                 
