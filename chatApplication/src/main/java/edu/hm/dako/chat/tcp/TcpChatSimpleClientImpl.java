@@ -326,7 +326,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
           	connection.send(requestPdu);
           	 log.debug("Logout-Request-PDU fuer Client " + name + " an Server gesendet");
           	
-       		 logoutCounter.getAndIncrement(); ///was macht sie????
+       		 logoutCounter.getAndIncrement(); ///was macht????
           	 log.debug("Logout-Request von " + requestPdu.getUserName() + " gesendet, LogoutCount = " + logoutCounter.get());
           	 
     	  } catch (Exception e) { 
@@ -350,12 +350,12 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
     	  messageCounter.getAndIncrement();
     	  requestPdu.setSequenceNumber(messageCounter.get());    	  
     	  try {
-              userInterface.setBlock(true);
+              //userInterface.setBlock(true);
               connection.send(requestPdu);
               log.debug("Chat-Message-Request-PDU fuer Client " + name + " an Server gesendet, Inhalt: " + text);
 
           } catch (Exception e) {
-              userInterface.setBlock(false);
+              //userInterface.setBlock(false);
         	  ExceptionHandler.logException(e);
           }
 
@@ -406,89 +406,115 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
         	
             if ( receivedPdu != null ) {          
             	
-                switch (getStatus()) {          
-                
-                case REGISTERING:        
-            	  switch (receivedPdu.getPduType()) {
-            	  
-                  case ChatPDU.LOGIN_RESPONSE:
-            	    // Login-Bestaetigung vom Server angekommen
-                	  
-                	  if (receivedPdu.getErrorCode() == ChatPDU.LOGIN_ERROR) {
-                		  log.debug("Login-Response-PDU fuer Client " + receivedPdu.getUserName() + " mit Login-Error empfangen");
-                          userInterface.setErrorMessage(receivedPdu.getUserName(), receivedPdu.getMessage(), receivedPdu.getErrorCode());
-                		   setStatus(ChatClientConversationStatus.UNREGISTERED);
-                	  } else { 
-                		  setStatus(ChatClientConversationStatus.REGISTERED);
-                		  userInterface.loginComplete();
-                		  Thread.currentThread().setName("Listener" + "-" + userName);
-                		  log.debug("Login-Response-PDU fuer Client " + receivedPdu.getUserName() + " empfangen");
-                	  }
-               	  	  break;  
-         
+                switch (getStatus()) {
+
+                    case REGISTERING:
+                        switch (receivedPdu.getPduType()) {
+
+                            case ChatPDU.LOGIN_RESPONSE:
+                                // Login-Bestaetigung vom Server angekommen
+
+                                if (receivedPdu.getErrorCode() == ChatPDU.LOGIN_ERROR) {
+                                    log.debug("Login-Response-PDU fuer Client " + receivedPdu.getUserName() + " mit Login-Error empfangen");
+                                    userInterface.setErrorMessage(receivedPdu.getUserName(), receivedPdu.getMessage(), receivedPdu.getErrorCode());
+                                    setStatus(ChatClientConversationStatus.UNREGISTERED);
+                                } else {
+                                    setStatus(ChatClientConversationStatus.REGISTERED);
+                                    userInterface.loginComplete();
+                                    Thread.currentThread().setName("Listener" + "-" + userName);
+                                    log.debug("Login-Response-PDU fuer Client " + receivedPdu.getUserName() + " empfangen");
+                                }
+                                break;
+
+                            case ChatPDU.LOGIN_EVENT:
+                                try {
+                                    handleUserListEvent(receivedPdu); ///Update der Liste von angemeldeten User
+                                } catch (Exception e) {
+                                    ExceptionHandler.logException(e);
+                                }
+                                break;
+
+                            case ChatPDU.LOGOUT_EVENT:
+                                try {
+                                    handleUserListEvent(receivedPdu); ///Update der Liste von angemeldeten User
+                                } catch (Exception e) {
+                                    ExceptionHandler.logException(e);
+                                }
+                                break;
+
+                            default:
+                                log.debug("Ankommende PDU im Zustand " + getStatus() + " wird verworfen"); ///Mit restlichen PDU-Typen macht er nichts
+                        }
+                        break;
+
+                    case REGISTERED:
+
+                        switch (receivedPdu.getPduType()) {
+
+                            case ChatPDU.LOGIN_EVENT:
+                                // Meldung vom Server, dass sich die Liste der angemeldeten User veraendert hat
+                                try {
+                                    handleUserListEvent(receivedPdu);
+                                } catch (Exception e) {
+                                    ExceptionHandler.logException(e);
+                                }
+                                break;
+
+                            case ChatPDU.LOGOUT_EVENT:
+                                // Meldung vom Server, dass sich die Liste der angemeldeten User veraendert hat
+                                try {
+                                    handleUserListEvent(receivedPdu);
+                                } catch (Exception e) {
+                                    ExceptionHandler.logException(e);
+                                }
+                                break;
+
+                            case ChatPDU.CHAT_MESSAGE_RESPONSE:
+                                lastServerTime = receivedPdu.getServerTime();
+                                // Unblock Chat
+                                chatResponseReceived.set(true);
+                                userInterface.setBlock(false);
+                                break;
+
+
+                            case ChatPDU.CHAT_MESSAGE_EVENT:
+                                eventCounter.getAndIncrement();
+                                // Show new message
+                                userInterface.setMessageLine(receivedPdu.getUserName(), receivedPdu.getMessage());
+                                break;
+                            default:
+                                log.debug("Ankommende PDU im Zustand " + getStatus() + " wird verworfen");
+                                break;
+                        }
+                    break;
+
+                case UNREGISTERING:        	  
+                  switch (receivedPdu.getPduType()) {
+
+                      case ChatPDU.LOGOUT_RESPONSE:
+                          logoutResponsePdu = receivedPdu;
+                          //logout(receivedPdu.getUserName().toString());
+                          setStatus(ChatClientConversationStatus.UNREGISTERED); ///// wird es benötigt?
+                          userInterface.logoutComplete();
+                          finished=true;
+                          break;
+                                   
                   case ChatPDU.LOGIN_EVENT:
-                      //////SharedChatClientList.getInstance().getClientNameList();
+                      // Meldung vom Server, dass sich die Liste der angemeldeten User veraendert hat
                       try {
-                          handleUserListEvent(receivedPdu); ///Update der Liste von angemeldeten User
+                          handleUserListEvent(receivedPdu);
                       } catch (Exception e) {
                           ExceptionHandler.logException(e);
                       }
                       break;
 
-                  case ChatPDU.LOGOUT_EVENT:
-
-                 	  // Meldung vom Server, dass sich die Liste der angemeldeten User veraendert hat
-                  	  try {
-                  		handleUserListEvent(receivedPdu); ///Update der Liste von angemeldeten User
-                  	  } catch (Exception e) {
-                  		ExceptionHandler.logException(e);
-                  	  }  
-                      break;
-                    
-            	  default:
-            	    log.debug("Ankommende PDU im Zustand " + getStatus() + " wird verworfen"); ///Mit restlichen PDU-Typen macht er nichts
-            	  }        	  
-            	  break;
-                
-                case REGISTERED:        
-                
-                    switch (receivedPdu.getPduType()) {
-                                     
-                    case ChatPDU.LOGIN_EVENT: ///FÜR ADVANCED CHAT SELBST VERVOLLSTÄNDIGEN
-                    case ChatPDU.LOGOUT_EVENT: ///FÜR ADVANCED CHAT SELBST VERVOLLSTÄNDIGEN ????
-                    	// Meldung vom Server, dass sich die Liste der angemeldeten User veraendert hat
-                    	try {
-                    		handleUserListEvent(receivedPdu);
-                        } catch (Exception e) {
-                            ExceptionHandler.logException(e);
-                        }   
-                    	break;
-
-                    case ChatPDU.CHAT_MESSAGE_RESPONSE:
-                        // Unblock Chat -> WIE?
-
-                    case ChatPDU.CHAT_MESSAGE_EVENT:
-                        // Show new message
-
-
-
-
-                    default:
-                	  log.debug("Ankommende PDU im Zustand " + getStatus() + " wird verworfen");
-                       }
-                  break;             
-                
-                case UNREGISTERING:        	  
-                  switch (receivedPdu.getPduType()) {  
-                                   
-                  case ChatPDU.LOGIN_EVENT:
                   case ChatPDU.LOGOUT_EVENT:     
                 	  // Meldung vom Server, dass sich die Liste der angemeldeten User veraendert hat
                   	  try {
                   		handleUserListEvent(receivedPdu);
                   	  } catch (Exception e) {
                   		ExceptionHandler.logException(e);
-                  	  }  
+                  	  }
                       break;
                     
                   default:
