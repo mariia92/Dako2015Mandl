@@ -242,7 +242,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
      
         // Dummy-Nachricht zusammenbauen
         String chatMessage = "";
-        for (int j = 0; j < messageLength; j++) { ///=500?
+        for (int j = 0; j < messageLength; j++) {
             chatMessage += "+";
         }
         
@@ -299,7 +299,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
     	  requestPdu.setClientStatus(getStatus());
     	  Thread.currentThread().setName("Client-" + userName);
     	  requestPdu.setClientThreadName(Thread.currentThread().getName());  
-    	  requestPdu.setUserName(userName);  
+    	  requestPdu.setUserName(userName);
           try {
           	 connection.send(requestPdu);
           	 log.debug("Login-Request-PDU fuer Client " + userName + " an Server gesendet");
@@ -348,7 +348,8 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
     	  requestPdu.setUserName(userName);
     	  requestPdu.setMessage(text);  
     	  messageCounter.getAndIncrement();
-    	  requestPdu.setSequenceNumber(messageCounter.get());    	  
+    	  requestPdu.setSequenceNumber(messageCounter.get());
+
     	  try {
               //userInterface.setBlock(true);
               connection.send(requestPdu);
@@ -358,8 +359,6 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
               //userInterface.setBlock(false);
         	  ExceptionHandler.logException(e);
           }
-
-
       }
 
       /**
@@ -412,6 +411,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
                         switch (receivedPdu.getPduType()) {
 
                             case ChatPDU.LOGIN_RESPONSE:
+                                //lastServerTime = receivedPdu.getServerTime(); ///Wir
                                 // Login-Bestaetigung vom Server angekommen
 
                                 if (receivedPdu.getErrorCode() == ChatPDU.LOGIN_ERROR) {
@@ -470,7 +470,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
                                 break;
 
                             case ChatPDU.CHAT_MESSAGE_RESPONSE:
-                                lastServerTime = receivedPdu.getServerTime();
+                                lastServerTime = receivedPdu.getServerTime(); /// Tutor
                                 // Unblock Chat
                                 chatResponseReceived.set(true);
                                 userInterface.setBlock(false);
@@ -492,9 +492,10 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
                   switch (receivedPdu.getPduType()) {
 
                       case ChatPDU.LOGOUT_RESPONSE:
+                          //lastServerTime = receivedPdu.getServerTime(); /// Wir
                           logoutResponsePdu = receivedPdu;
                           //logout(receivedPdu.getUserName().toString());
-                          setStatus(ChatClientConversationStatus.UNREGISTERED); ///// wird es benötigt?
+                          setStatus(ChatClientConversationStatus.UNREGISTERED);
                           userInterface.logoutComplete();
                           finished=true;
                           break;

@@ -32,3 +32,14 @@ Variation der Threadanzahl, TCP-Implementation, 1, 10, 1, 1, 1, 0, 10, 10, 10, 0
 Variation der Threadanzahl, TCP-Implementation, 1, 10, 1, 1, 1, 8413171, 10, 10, 10, 0, 0, 0, 0, 0, 0, 8, 4.11.2015 12:0:34, 4.11.2015 12:0:36
 Variation der Threadanzahl, TCP-Implementation, 10, 10, 11, 14, 8, 23563476, 100, 100, 100, 0, 0, 0, 0, 0, 0, 8, 4.11.2015 12:25:49, 4.11.2015 12:25:51
 Variation der Threadanzahl, TCP-Implementation, 10, 20, 11, 13, 6, 56981664, 200, 200, 200, 0, 0, 0, 0, 0, 0, 8, 4.11.2015 12:34:2, 4.11.2015 12:34:4
+Variation der Threadanzahl, TCP-Implementation, 1, 10, 1, 1, 1, 19809910, 10, 10, 10, 0, 0, 0, 0, 0, 0, 8, 5.11.2015 14:25:36, 5.11.2015 14:25:38
+Variation der Threadanzahl, TCP-Implementation, 1, 10, 1, 1, 1, 37817109, 10, 10, 10, 0, 0, 0, 0, 0, 0, 8, 5.11.2015 14:55:37, 5.11.2015 14:55:39
+Variation der Threadanzahl, TCP-Implementation, 10, 20, 10, 13, 5, 31244335, 200, 200, 200, 0, 0, 0, 0, 0, 0, 8, 11.11.2015 12:17:2, 11.11.2015 12:17:4
+Variation der Threadanzahl, TCP-Implementation, 1, 10, 1, 1, 1, 16457250, 10, 10, 10, 0, 0, 0, 0, 0, 0, 8, 11.11.2015 12:18:26, 11.11.2015 12:18:28
+Variation der Threadanzahl, TCP-Implementation, 10, 20, 8, 11, 6, 33986361, 200, 200, 200, 0, 0, 0, 0, 0, 0, 9, 11.11.2015 12:19:19, 11.11.2015 12:19:21
+Variation der Threadanzahl, TCP-Implementation, 10, 20, 8, 11, 5, 35696737, 200, 200, 200, 0, 0, 0, 0, 0, 0, 9, 11.11.2015 12:20:45, 11.11.2015 12:20:47
+Variation der Threadanzahl, TCP-Implementation, 10, 20, 11, 14, 6, 36617068, 200, 200, 200, 0, 0, 0, 0, 0, 0, 9, 11.11.2015 12:21:31, 11.11.2015 12:21:33
+Variation der Threadanzahl, TCP-Implementation, 10, 20, 13, 18, 6, 72470720, 200, 200, 200, 0, 0, 0, 0, 0, 0, 9, 11.11.2015 12:51:23, 11.11.2015 12:51:26
+Variation der Threadanzahl, TCP-Implementation, 10, 20, 11, 13, 8, 31, 200, 200, 200, 0, 0, 0, 0, 0, 0, 9, 11.11.2015 12:59:13, 11.11.2015 12:59:16
+Variation der Threadanzahl, TCP-Implementation, 10, 20, 9, 13, 6, 28, 200, 200, 200, 0, 0, 0, 0, 0, 0, 8, 11.11.2015 13:2:6, 11.11.2015 13:2:9
+Variation der Threadanzahl, TCP-Implementation, 10, 20, 11, 13, 8, 35, 200, 200, 200, 0, 0, 0, 0, 0, 0, 9, 11.11.2015 13:12:41, 11.11.2015 13:12:43

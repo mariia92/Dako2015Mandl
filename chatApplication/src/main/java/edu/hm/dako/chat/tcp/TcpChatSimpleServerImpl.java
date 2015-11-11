@@ -160,13 +160,16 @@ public class TcpChatSimpleServerImpl implements ChatServer {
         private ChatPDU createLoginResponsePdu(ChatPDU receivedPdu) {
 
             ChatPDU pdu = new ChatPDU();
+
             pdu.setPduType(ChatPDU.LOGIN_RESPONSE);
             pdu.setServerThreadName(Thread.currentThread().getName());
             pdu.setClientThreadName(receivedPdu.getClientThreadName());
             pdu.setUserName(receivedPdu.getUserName());
 
             ChatClientListEntry client = clients.getClient(receivedPdu.getUserName());
+
             if (client != null) {
+                //pdu.setServerTime(System.nanoTime() - client.getStartTime());
                 pdu.setClientStatus(client.getStatus());
             } else {
                 pdu.setClientStatus(ChatClientConversationStatus.REGISTERED);
@@ -213,7 +216,8 @@ public class TcpChatSimpleServerImpl implements ChatServer {
 
             if (client != null) {
                 pdu.setClientStatus(client.getStatus());
-                pdu.setServerTime(System.nanoTime() - client.getStartTime());
+                //pdu.setServerTime(System.nanoTime() - client.getStartTime()); alt
+                pdu.setServerTime(System.nanoTime() - startTime); //neu
                 pdu.setSequenceNumber(client.getNumberOfReceivedChatMessages());
                 pdu.setNumberOfSentEvents(client.getNumberOfSentEvents());
                 pdu.setNumberOfLostEventConfirms(client.getNumberOfLostEventConfirms());
@@ -242,6 +246,7 @@ public class TcpChatSimpleServerImpl implements ChatServer {
             ChatClientListEntry client = clients.getClient(receivedPdu.getUserName());
             if (client != null) {
                 pdu.setClientStatus(client.getStatus());
+                //pdu.setServerTime(System.nanoTime() - client.getStartTime());
                 pdu.setNumberOfSentEvents(client.getNumberOfSentEvents());
                 pdu.setNumberOfLostEventConfirms(client.getNumberOfLostEventConfirms());
                 pdu.setNumberOfEventReceivedConfirms(client.getNumberOfReceivedEventConfirms());
@@ -459,10 +464,11 @@ public class TcpChatSimpleServerImpl implements ChatServer {
                         break;
 
                     case ChatPDU.CHAT_MESSAGE_REQUEST:
-                        long startTime = System.nanoTime();
+                        //long startTime = System.nanoTime() - client.getStartTime;
+                        startTime = System.nanoTime();
                         log.debug("Chat-Message-Request-PDU fuer " + receivedPdu.getUserName() + "empfangen");
                         sendPduToAllActiveClients(createChatMessageEventPdu(receivedPdu));
-
+                        //long ServerTime = System.nanoTime() - startTime;
                         connection.send(createChatMessageResponsePdu(receivedPdu));
                         break;
 
