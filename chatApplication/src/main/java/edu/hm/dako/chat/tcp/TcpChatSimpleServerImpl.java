@@ -301,6 +301,8 @@ public class TcpChatSimpleServerImpl implements ChatServer {
 
                         client.getConnection().send(pdu);
                         log.debug("Login- oder Logout-Event-PDU an " + client.getUserName() + " gesendet");
+                        //clients.incrNumberOfSentChatEvents(client.getUserName());
+                        //eventCounter.getAndIncrement(); /// Anzahl der vom Server gesendeten EVENT-PDUs
                     }
                 } catch (Exception e) {
                     log.debug("Senden einer Login- oder Logout-Event-PDU an " + s + " nicht moeglich");
@@ -393,6 +395,8 @@ public class TcpChatSimpleServerImpl implements ChatServer {
 
                         client.getConnection().send(pdu);
                         log.debug("Login- oder Logout-Event-PDU an " + client.getUserName() + " gesendet");
+                        clients.incrNumberOfSentChatEvents(client.getUserName());
+                        //eventCounter.getAndIncrement();
                     }
                 } catch (Exception e) {
                     log.debug("Senden einer Login- oder Logout-Event-PDU an " + s + " nicht moeglich");
