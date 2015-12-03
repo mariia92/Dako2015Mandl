@@ -33,7 +33,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
     private ChatClientConversationStatus status; 
     
     // Zaehler fuer gesendete Chat-Nachrichten des Clients
-    private AtomicInteger messageCounter = new AtomicInteger(0);  ///warum AtomicInteger? ///für automatische Inkrementation bei mehreren Threads
+    private AtomicInteger messageCounter = new AtomicInteger(0); ///für automatische Inkrementation bei mehreren Threads
     
     // Kennzeichen, ob zuletzt erwartete Chat-Response-PDU des Clients angekommen ist
     private AtomicBoolean chatResponseReceived = new AtomicBoolean(); ///Ändert False auf True und receive response();
@@ -293,7 +293,6 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
       public void login(String name) throws Exception {
     	  
     	  userName = name;
-    	  setStatus(ChatClientConversationStatus.REGISTERING);
     	  ChatPDU requestPdu = new ChatPDU();
     	  requestPdu.setPduType(ChatPDU.LOGIN_REQUEST);
     	  requestPdu.setClientStatus(getStatus());
@@ -305,7 +304,8 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
           	 log.debug("Login-Request-PDU fuer Client " + userName + " an Server gesendet");
           } catch (Exception e) {
         	  ExceptionHandler.logException(e);
-	      }   	
+	      }
+          setStatus(ChatClientConversationStatus.REGISTERING);
       } 
 
       /**
@@ -316,7 +316,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
        */
       public void logout(String name) throws Exception {
     	  
-    	  setStatus(ChatClientConversationStatus.UNREGISTERING);
+    	  //setStatus(ChatClientConversationStatus.UNREGISTERING);
     	  ChatPDU requestPdu = new ChatPDU();
     	  requestPdu.setPduType(ChatPDU.LOGOUT_REQUEST);
     	  requestPdu.setClientStatus(getStatus());
@@ -360,6 +360,62 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
         	  ExceptionHandler.logException(e);
           }
       }
+
+    public void sendMessageEventConfirm(String name) {
+
+        ChatPDU confirmPdu = new ChatPDU();
+        confirmPdu.setPduType(ChatPDU.CHAT_MESSAGE_EVENT_CONFIRM);
+        confirmPdu.setClientStatus(getStatus());
+        confirmPdu.setClientThreadName(Thread.currentThread().getName());
+        confirmPdu.setUserName(userName);
+        //confirmPdu.setSequenceNumber(messageCounter.get());
+
+        try {
+            connection.send(confirmPdu);
+            log.debug("Chat-Message-Event-Confirm-PDU fuer Client " + name + " an Server gesendet");
+
+        } catch (Exception e) {
+            ExceptionHandler.logException(e);
+        }
+    }
+
+    public void sendLoginEventConfirm(String name, ChatPDU pdu) {
+
+        ChatPDU confirmPdu = new ChatPDU();
+        confirmPdu.setPduType(ChatPDU.LOGIN_EVENT_CONFIRM);
+        confirmPdu.setClientStatus(getStatus());
+        confirmPdu.setClientThreadName(Thread.currentThread().getName());
+        confirmPdu.setUserName(userName);
+        confirmPdu.setEventUserName(pdu.getEventUserName());
+        //confirmPdu.setSequenceNumber(messageCounter.get());
+
+        try {
+            connection.send(confirmPdu);
+            log.debug("Login-Event-Confirm-PDU fuer Client " + name + " an Server gesendet");
+
+        } catch (Exception e) {
+            ExceptionHandler.logException(e);
+        }
+    }
+
+    public void sendLogoutEventConfirm(String name, ChatPDU pdu) {
+
+        ChatPDU confirmPdu = new ChatPDU();
+        confirmPdu.setPduType(ChatPDU.LOGOUT_EVENT_CONFIRM);
+        confirmPdu.setClientStatus(getStatus());
+        confirmPdu.setClientThreadName(Thread.currentThread().getName());
+        confirmPdu.setUserName(userName);
+        confirmPdu.setEventUserName(pdu.getEventUserName());
+        //confirmPdu.setSequenceNumber(messageCounter.get());
+
+        try {
+            connection.send(confirmPdu);
+            log.debug("Logout-Event-Confirm-PDU fuer Client " + name + " an Server gesendet");
+
+        } catch (Exception e) {
+            ExceptionHandler.logException(e);
+        }
+    }
 
       /**
        * Event vom Server zur Veraenderung der UserListe (eingeloggte Clients)
@@ -428,6 +484,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
 
                             case ChatPDU.LOGIN_EVENT:
                                 try {
+                                    sendLoginEventConfirm(userName, receivedPdu); ///
                                     handleUserListEvent(receivedPdu); ///Update der Liste von angemeldeten User
                                 } catch (Exception e) {
                                     ExceptionHandler.logException(e);
@@ -436,6 +493,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
 
                             case ChatPDU.LOGOUT_EVENT:
                                 try {
+                                    sendLogoutEventConfirm(userName, receivedPdu); ///
                                     handleUserListEvent(receivedPdu); ///Update der Liste von angemeldeten User
                                 } catch (Exception e) {
                                     ExceptionHandler.logException(e);
@@ -454,6 +512,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
                             case ChatPDU.LOGIN_EVENT:
                                 // Meldung vom Server, dass sich die Liste der angemeldeten User veraendert hat
                                 try {
+                                    sendLoginEventConfirm(userName, receivedPdu); ///
                                     handleUserListEvent(receivedPdu);
                                 } catch (Exception e) {
                                     ExceptionHandler.logException(e);
@@ -463,6 +522,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
                             case ChatPDU.LOGOUT_EVENT:
                                 // Meldung vom Server, dass sich die Liste der angemeldeten User veraendert hat
                                 try {
+                                    sendLogoutEventConfirm(userName, receivedPdu); ///
                                     handleUserListEvent(receivedPdu);
                                 } catch (Exception e) {
                                     ExceptionHandler.logException(e);
@@ -479,9 +539,12 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
 
                             case ChatPDU.CHAT_MESSAGE_EVENT:
                                 eventCounter.getAndIncrement();
+                                /// Confirmation an den Server senden
+                                sendMessageEventConfirm(userName);
                                 // Show new message
                                 userInterface.setMessageLine(receivedPdu.getUserName(), receivedPdu.getMessage());
                                 break;
+
                             default:
                                 log.debug("Ankommende PDU im Zustand " + getStatus() + " wird verworfen");
                                 break;
@@ -492,9 +555,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
                   switch (receivedPdu.getPduType()) {
 
                       case ChatPDU.LOGOUT_RESPONSE:
-                          //lastServerTime = receivedPdu.getServerTime(); /// Wir
                           logoutResponsePdu = receivedPdu;
-                          //logout(receivedPdu.getUserName().toString());
                           setStatus(ChatClientConversationStatus.UNREGISTERED);
                           userInterface.logoutComplete();
                           finished=true;
@@ -503,6 +564,7 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
                   case ChatPDU.LOGIN_EVENT:
                       // Meldung vom Server, dass sich die Liste der angemeldeten User veraendert hat
                       try {
+                          sendLoginEventConfirm(userName, receivedPdu); ///
                           handleUserListEvent(receivedPdu);
                       } catch (Exception e) {
                           ExceptionHandler.logException(e);
@@ -512,11 +574,20 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
                   case ChatPDU.LOGOUT_EVENT:     
                 	  // Meldung vom Server, dass sich die Liste der angemeldeten User veraendert hat
                   	  try {
-                  		handleUserListEvent(receivedPdu);
+                          sendLogoutEventConfirm(userName, receivedPdu); ///
+                          handleUserListEvent(receivedPdu);
                   	  } catch (Exception e) {
                   		ExceptionHandler.logException(e);
                   	  }
                       break;
+
+                      case ChatPDU.CHAT_MESSAGE_EVENT:
+                          eventCounter.getAndIncrement();
+                          /// Confirmation an den Server senden
+                          sendMessageEventConfirm(userName);
+                          // Show new message
+                          userInterface.setMessageLine(receivedPdu.getUserName(), receivedPdu.getMessage());
+                          break;
                     
                   default:
                	     log.debug("Ankommende PDU im Zustand " + getStatus() + " wird verworfen");

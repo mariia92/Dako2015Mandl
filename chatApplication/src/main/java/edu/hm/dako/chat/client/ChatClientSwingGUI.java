@@ -1,36 +1,21 @@
 package edu.hm.dako.chat.client;
 
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
+import edu.hm.dako.chat.common.ExceptionHandler;
+import edu.hm.dako.chat.tcp.TcpChatSimpleClientImpl;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.PropertyConfigurator;
+
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.text.NumberFormat;
 import java.util.Vector;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFormattedTextField;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.log4j.PropertyConfigurator;
-
-import edu.hm.dako.chat.common.ExceptionHandler;
-import edu.hm.dako.chat.tcp.TcpChatSimpleClientImpl;
 
 /**
  * Chat-Client GUI
@@ -240,6 +225,7 @@ public class ChatClientSwingGUI extends JFrame implements ChatClientUserInterfac
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				performLogout();
+				System.exit(0);
 			}
 		});
 

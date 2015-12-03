@@ -1,11 +1,11 @@
 package edu.hm.dako.chat.common;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.HashSet;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Liste aller angemeldeten Clients. Diese Liste wird im Server als Singleton verwaltet
@@ -181,7 +181,7 @@ public class SharedChatClientList {
 
 				for (String s : new HashSet<String>(clients.keySet())) {		
 					ChatClientListEntry client = (ChatClientListEntry) clients.get(s);
-					if (client.getWaitList().size() != 0) {
+					if (client.getWaitList().contains(userName)) { ///früher: ...getWaitList().size() != 0
 						log.debug("Loeschen nicht moeglich, da Client " + s + " noch in der Warteliste von " +
 								client.getUserName() + " ist" );
 						return deletedFlag;
