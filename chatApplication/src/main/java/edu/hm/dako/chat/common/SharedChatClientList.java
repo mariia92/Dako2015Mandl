@@ -165,8 +165,8 @@ public class SharedChatClientList {
 	public synchronized boolean deleteClient(String userName) {
 
 		log.debug("Clientliste vor dem Loeschen von " + userName + ": " + printClientList());
-  	  	log.debug("Logout fuer " + userName + ", Laenge der Clientliste vor deleteClient: " + clients.size());
-  	   
+		log.debug("Logout fuer " + userName + ", Laenge der Clientliste vor deleteClient: " + clients.size());
+
 		boolean deletedFlag = false;
 		ChatClientListEntry removeCandidateClient = (ChatClientListEntry) clients.get(userName);
 		if ( removeCandidateClient != null) {
@@ -179,7 +179,7 @@ public class SharedChatClientList {
 				log.debug("Warteliste von Client " + removeCandidateClient.getUserName() +
 						" ist leer und Client ist zum Beenden vorgemerkt");
 
-				for (String s : new HashSet<String>(clients.keySet())) {		
+				for (String s : new HashSet<String>(clients.keySet())) {
 					ChatClientListEntry client = (ChatClientListEntry) clients.get(s);
 					if (client.getWaitList().contains(userName)) { ///früher: ...getWaitList().size() != 0
 						log.debug("Loeschen nicht moeglich, da Client " + s + " noch in der Warteliste von " +
@@ -193,10 +193,79 @@ public class SharedChatClientList {
 				deletedFlag = true;
 			}
 		}
-		
-		log.debug("Logout: Laenge der Clientliste nach deleteClient fuer: " + userName + ": " + clients.size());  
+
+		log.debug("Logout: Laenge der Clientliste nach deleteClient fuer: " + userName + ": " + clients.size());
 		log.debug("Clientliste nach dem Loeschen von " + userName + ": " + printClientList());
 		return deletedFlag;
+	}
+
+	public synchronized boolean forceDeleteClient(String userName) { ///selbstdefinierte Methode
+
+		log.debug("Clientliste vor dem Loeschen von " + userName + ": " + printClientList());
+		log.debug("Logout fuer " + userName + ", Laenge der Clientliste vor deleteClient: " + clients.size());
+
+		boolean deletedFlag = false;
+		ChatClientListEntry removeCandidateClient = (ChatClientListEntry) clients.get(userName);
+		if ( removeCandidateClient != null) {
+
+			// Event-Warteliste des Clients leer?
+			log.debug("Laenge der Clientliste " + userName + ": " + clients.size());
+			if ( (removeCandidateClient.getWaitList().size() == 0) && (removeCandidateClient.isFinished()) ) {
+
+				// Warteliste leer, jetzt pruefen, ob er noch in anderen Wartelisten ist
+				log.debug("Warteliste von Client " + removeCandidateClient.getUserName() +
+						" ist leer und Client ist zum Beenden vorgemerkt");
+
+				for (String s : new HashSet<String>(clients.keySet())) {
+					ChatClientListEntry client = (ChatClientListEntry) clients.get(s);
+					if (client.getWaitList().contains(userName)) { ///statement ändern!!!
+						log.debug("Loeschen des Clients " + s + " von der Warteliste von " +
+								client.getUserName() + " wird mit Gewalt durchgeführt" );
+
+						client.getWaitList().removeElement(userName);
+
+					}
+				}
+
+				// Client kann entfernt werden, sofern er auch zum Beenden vorgemerkt ist.
+				clients.remove(userName);
+				deletedFlag = true;
+			}
+		}
+
+		log.debug("Logout: Laenge der Clientliste nach deleteClient fuer: " + userName + ": " + clients.size());
+		log.debug("Clientliste nach dem Loeschen von " + userName + ": " + printClientList());
+		return deletedFlag;
+	}
+
+	public synchronized boolean isClientFinished(String userName) { /// selbstdefinierte Methode
+
+		log.debug("Checking if Client " + userName + "is finished for logging out");
+
+		ChatClientListEntry logoutCandidateClient = (ChatClientListEntry) clients.get(userName);
+		if (logoutCandidateClient != null) {
+
+			// Event-Warteliste des Clients leer?
+			log.debug("Laenge der Clientliste " + userName + ": " + clients.size());
+			if ( (logoutCandidateClient.getWaitList().size() == 0) && (logoutCandidateClient.isFinished()) ) {
+
+				// Warteliste leer, jetzt pruefen, ob er noch in anderen Wartelisten ist
+				log.debug("Warteliste von Client " + logoutCandidateClient.getUserName() +
+						" ist leer und Client ist zum Beenden vorgemerkt");
+
+				for (String s : new HashSet<String>(clients.keySet())) {
+					ChatClientListEntry client = (ChatClientListEntry) clients.get(s);
+					if (client.getWaitList().contains(userName)) {
+						log.debug("Vorbereitung zum Logout nicht moeglich, da Client " + s + " noch in der Warteliste von " +
+								client.getUserName() + " ist" );
+						return false;
+					}
+				}
+			}
+		}
+
+		log.debug("Client " + userName + "Kann sich ausloggen ");
+		return true;
 	}
 
 	/**
