@@ -54,3 +54,6 @@ Variation der Threadanzahl, TCP-Implementation, 10, 20, 11, 14, 7, 29, 200, 200,
 Variation der Threadanzahl, TCP-Implementation, 10, 20, 13, 16, 8, 40, 200, 200, 200, 0, 0, 2185, 0, 0, 0, 9, 18.11.2015 12:41:42, 18.11.2015 12:41:44
 Variation der Threadanzahl, TCP-Implementation, 10, 20, 11, 14, 8, 31, 200, 200, 200, 0, 0, 2000, 0, 0, 0, 9, 18.11.2015 12:46:6, 18.11.2015 12:46:8
 Variation der Threadanzahl, TCP-Implementation, 10, 20, 12, 15, 7, 38, 200, 200, 200, 0, 0, 2000, 0, 0, 0, 9, 18.11.2015 12:46:51, 18.11.2015 12:46:54
+Variation der Threadanzahl, TCP-Implementation, 1, 10, 5, 5, 5, 11, 10, 10, 10, 0, 0, 10, 10, 0, 0, 21, 16.12.2015 12:30:40, 16.12.2015 12:30:42
+Variation der Threadanzahl, TCP-Implementation, 2, 10, 7, 8, 6, 14, 20, 20, 20, 0, 0, 40, 40, 0, 0, 11, 16.12.2015 12:30:49, 16.12.2015 12:30:52
+Variation der Threadanzahl, TCP-Implementation, 10, 10, 122, 136, 34, 29, 100, 100, 100, 0, 0, 1000, 981, 0, 0, 41, 16.12.2015 12:31:44, 16.12.2015 12:31:48

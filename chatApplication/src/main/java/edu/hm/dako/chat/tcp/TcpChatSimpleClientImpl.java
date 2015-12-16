@@ -318,7 +318,8 @@ public class TcpChatSimpleClientImpl extends AbstractClient {
     	  
     	  //setStatus(ChatClientConversationStatus.UNREGISTERING);
     	  ChatPDU requestPdu = new ChatPDU();
-    	  requestPdu.setPduType(ChatPDU.LOGOUT_REQUEST);
+    	  setStatus(ChatClientConversationStatus.UNREGISTERING);
+          requestPdu.setPduType(ChatPDU.LOGOUT_REQUEST);
     	  requestPdu.setClientStatus(getStatus());
     	  requestPdu.setClientThreadName(Thread.currentThread().getName());    	  
     	  requestPdu.setUserName(userName);   
