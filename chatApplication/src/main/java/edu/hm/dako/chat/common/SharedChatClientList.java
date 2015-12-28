@@ -40,7 +40,6 @@ public class SharedChatClientList {
 	    }
 	    return SharedChatClientList.instance;	        
 	}
-
 	
 	/**
 	 * Loeschen der gesamten Liste
@@ -237,6 +236,28 @@ public class SharedChatClientList {
 		log.debug("Clientliste nach dem Loeschen von " + userName + ": " + printClientList());
 		return deletedFlag;
 	}
+
+
+	/**
+	 * Loescht einen Client zwangsweise inkl. aller Einträge in Wartelisten.
+	 *
+	 * @param userName Name des Clients
+	 */
+	public synchronized void deleteClientWithoutCondition(String userName) {
+		log.debug("Client  " + userName + " zwangsweise aus allen Listen entfernen");
+		for (String s : new HashSet<String>(clients.keySet())) {
+			ChatClientListEntry client = (ChatClientListEntry) clients.get(s);
+			if (client.getWaitList().contains(userName)) {
+				client.getWaitList().remove(userName);
+			}
+		}
+
+		// Client kann nun entfernt werden
+		clients.remove(userName);
+		log.debug("Client  " + userName + " vollstaendig aus allen Wartelisten entfernt");
+	}
+
+
 
 	public synchronized boolean isClientFinished(String userName) { /// selbstdefinierte Methode
 

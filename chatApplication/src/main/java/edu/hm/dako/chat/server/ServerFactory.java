@@ -3,7 +3,7 @@ package edu.hm.dako.chat.server;
 import edu.hm.dako.chat.connection.Connection;
 import edu.hm.dako.chat.connection.LoggingConnectionDecorator;
 import edu.hm.dako.chat.connection.ServerSocket;
-import edu.hm.dako.chat.tcp.TcpChatSimpleServerImpl;
+import edu.hm.dako.chat.tcp.TcpChatAdvancedServerImpl;
 import edu.hm.dako.chat.tcp.TcpServerSocket;
 import edu.hm.dako.chat.benchmarking.UserInterfaceInputParameters;
 
@@ -39,7 +39,7 @@ public final class ServerFactory {
         log.debug("ChatServer (" + type.toString() + ") wird gestartet");
         switch (type) {
             case TCPImplementation:
-                return new TcpChatSimpleServerImpl(Executors.newCachedThreadPool(), getDecoratedServerSocket(  /// Ein bestimmtes Server-Objekt  ////WAS IST NEW CASHED THREAD POOL? WOFÜR???
+                return new TcpChatAdvancedServerImpl(Executors.newCachedThreadPool(), getDecoratedServerSocket(  /// Ein bestimmtes Server-Objekt  ////WAS IST NEW CASHED THREAD POOL? WOFÜR???
                         new TcpServerSocket(DEFAULT_SERVER_PORT,
                         					SERVER_SEND_BUFFER_SIZE, 
                         					SERVER_RECEIVE_BUFFER_SIZE)));

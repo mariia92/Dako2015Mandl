@@ -1,7 +1,7 @@
 package edu.hm.dako.chat.client;
 
 import edu.hm.dako.chat.common.ExceptionHandler;
-import edu.hm.dako.chat.tcp.TcpChatSimpleClientImpl;
+import edu.hm.dako.chat.tcp.TcpChatAdvancedClientImpl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.PropertyConfigurator;
@@ -76,7 +76,7 @@ public class ChatClientSwingGUI extends JFrame implements ChatClientUserInterfac
 
 	private Integer intServerPort;
 
-	private TcpChatSimpleClientImpl communicator;
+	private TcpChatAdvancedClientImpl communicator;
 
 	private AboutDialog aboutDialog;
 
@@ -295,7 +295,7 @@ public class ChatClientSwingGUI extends JFrame implements ChatClientUserInterfac
 				log.debug("Serverport: " + intServerPort);
 				serverNameOrIp = txtServerNameOrIp.getText();
 				log.debug("Serveradresse: " + serverNameOrIp);
-				communicator = new TcpChatSimpleClientImpl(this, intServerPort.intValue(), serverNameOrIp);
+				communicator = new TcpChatAdvancedClientImpl(this, intServerPort.intValue(), serverNameOrIp);
 			}
 		} else {
 			System.exit(9);

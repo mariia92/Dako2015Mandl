@@ -97,7 +97,7 @@ public abstract class AbstractClient implements Runnable {
 	 *
 	 * @throws InterruptedException falls sleep unterbrochen wurde
 	 */
-	protected void watForLoggedInClients() throws InterruptedException {
+	protected void waitForLoggedInClients() throws InterruptedException {
 		sharedData.getLoginSignal().countDown(); ///WARUM ERST COUNTDOWN UND ERST DANN WAIT? WIE FUNKTIONEREN GENAU DIE METHODEN?
 		sharedData.getLoginSignal().await();
 	}

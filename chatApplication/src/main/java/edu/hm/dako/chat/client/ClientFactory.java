@@ -4,7 +4,7 @@ package edu.hm.dako.chat.client;
 import edu.hm.dako.chat.common.SharedClientStatistics;
 import edu.hm.dako.chat.connection.ConnectionFactory;
 import edu.hm.dako.chat.connection.DecoratingConnectionFactory;
-import edu.hm.dako.chat.tcp.TcpChatSimpleClientImpl;
+import edu.hm.dako.chat.tcp.TcpChatAdvancedClientImpl;
 import edu.hm.dako.chat.tcp.TcpConnectionFactory;
 import edu.hm.dako.chat.benchmarking.UserInterfaceInputParameters;
 
@@ -22,7 +22,7 @@ public final class ClientFactory {
 		try {
 			switch (param.getImplementationType()) {
 				case TCPImplementation:
-					return new TcpChatSimpleClientImpl(userInterface, param.getRemoteServerPort(),
+					return new TcpChatAdvancedClientImpl(userInterface, param.getRemoteServerPort(),
 							param.getRemoteServerAddress(), numberOfClient, param.getMessageLength(),
 							param.getNumberOfMessages(), param.getClientThinkTime(),
 							param.getNumberOfRetries(), param.getResponseTimeout(),

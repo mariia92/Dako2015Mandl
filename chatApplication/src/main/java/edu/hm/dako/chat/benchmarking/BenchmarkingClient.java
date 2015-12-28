@@ -1,18 +1,17 @@
 package edu.hm.dako.chat.benchmarking;
 
+import edu.hm.dako.chat.client.ChatClientUserInterface;
+import edu.hm.dako.chat.client.ClientFactory;
+import edu.hm.dako.chat.common.CpuUtilisationWatch;
+import edu.hm.dako.chat.common.SharedClientStatistics;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Calendar;
 import java.util.Vector;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import edu.hm.dako.chat.client.ChatClientUserInterface;
-import edu.hm.dako.chat.client.ClientFactory;
-import edu.hm.dako.chat.common.CpuUtilisationWatch;
-import edu.hm.dako.chat.common.SharedClientStatistics;
 
 /**
  * Basisklasse zum Starten eines Benchmarks
@@ -20,22 +19,22 @@ import edu.hm.dako.chat.common.SharedClientStatistics;
  * @author Mandl
  */
 public class BenchmarkingClient implements BenchmarkingStartInterface, ChatClientUserInterface {
-    private static Log log = LogFactory.getLog(BenchmarkingClient.class); ///unter der Variable log wird ein Name dem LogIner zugewiesen
+    private static Log log = LogFactory.getLog(BenchmarkingClient.class);
 
     // Daten aller Client-Threads zur Verwaltung der Statistik
-    private SharedClientStatistics sharedData; ///number of clients, number of messages, client think time, number of all messages, numberOfPlannedEventMessages, loginSignal, logoutSignal, clientStatistics
-    private CpuUtilisationWatch cpuUtilisationWatch; ///Ermitteln der durchschnittlich verbrauchten CPU-Zeit eines Prozesses
+    private SharedClientStatistics sharedData;
+    private CpuUtilisationWatch cpuUtilisationWatch;
 
     @Override
-    public synchronized void  setUserList(Vector<String> names) { ///SOLL GESCHRIEBEN WERDEN? ///ein nach Größe veränderbarer Array von Strings mit den Namen von Users 
+    public synchronized void  setUserList(Vector<String> names) {
     }
 
     @Override
-    public synchronized void setMessageLine(String sender, String message) { ///Was ist hier gemeint?
+    public synchronized void setMessageLine(String sender, String message) {
     }
 
     @Override
-    public void setBlock(boolean block) { ///? Welcher Block
+    public void setBlock(boolean block) {
 
     }
 
@@ -45,12 +44,12 @@ public class BenchmarkingClient implements BenchmarkingStartInterface, ChatClien
     }
 
     @Override
-    public void loginComplete() { ///?
+    public void loginComplete() {
 
     }
 
     @Override
-    public void logoutComplete() { ///?
+    public void logoutComplete() {
 
     }
 
